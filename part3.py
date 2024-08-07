@@ -2,35 +2,14 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-def sierpinski_arrowhead_curve(order: int, length: float) -> torch.Tensor:
-    if order % 2 == 0:
-        return curve(order, length, +60)
-    else:
-        return curve(order, length, -60)
+# Device configuration
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def curve(order: int, length: float, angle: int) -> torch.Tensor:
-    if order == 0:
-        # draw(length)
-        return torch.tensor([[length, 0]]).reshape(1, 2)
-    else:
-        segment1 = curve(order - 1, length / 2, -angle)
-        turn1 = turn(angle)
-        segment2 = curve(order - 1, length / 2, angle)
-        turn2 = turn(angle)
-        segment3 = curve(order - 1, length / 2, -angle)
+X, Y = np.mgrid[-4.0:4.0:0.01, -4.0:4.0:0.01]
+x = torch.tensor(X).to(device)
+y = torch.tensor(Y).to(device)
 
-        return torch.cat((segment1 @ turn1, segment2, segment3 @ turn2))
-
-def turn(angle: int) -> torch.Tensor:
-    rad = torch.deg2rad(torch.tensor(angle, dtype=torch.float32))
-    return torch.tensor(
-        [[torch.cos(rad), -torch.sin(rad)],
-         [torch.sin(rad),  torch.cos(rad)]]
-        )
-
-
-
-
-order = 3
-length = 1.0
-points = sierpinski_arrowhead_curve(order, length)
+golden_ratio = (1 + np.sqrt(5))/2
+r1 = np.power(1/golden_ratio, 1/golden_ratio)
+r2 = np.power(1/golden_ratio, 2)
+log_base = np.power(golden_ratio, 1/golden_ratio)
